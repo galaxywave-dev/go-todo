@@ -10,7 +10,7 @@ content-type: application/json
 
 {
     "title": "C#",
-    "author": "Jack"
+    "author": "Joe"
 }
 POST http://localhost:8088/books HTTP/1.1
 content-type: application/json

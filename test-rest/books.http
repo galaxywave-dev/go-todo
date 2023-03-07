@@ -1,5 +1,5 @@
 http://localhost:8088/books/
-
+http://localhost:8088/books/2
 PATCH http://localhost:8088/books/2 HTTP/1.1
 content-type: application/json
 

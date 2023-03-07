@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"galaxywave.com/go-todo/models"
@@ -12,6 +13,10 @@ import (
 type CreateBookInput struct {
 	Title  string `json:"title" binding:"required"`
 	Author string `json:"author" binding:"required"`
+}
+
+type BookInput struct {
+	ID uint `uri:"id"`
 }
 
 type UpdateBookInput struct {
@@ -54,7 +59,18 @@ func CreateBook(c *gin.Context) {
 func FindBook(c *gin.Context) { // Get model if exist
 	var book models.Book
 
-	if err := models.DB.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
+	// if err := models.DB.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
+	// 	return
+	// }
+
+	var input BookInput
+	if err := c.ShouldBindUri(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println(input.ID)
+	if err := models.DB.Where("id = ?", input.ID).First(&book).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
 		return
 	}
