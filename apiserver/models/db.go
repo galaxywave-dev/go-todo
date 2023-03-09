@@ -1,19 +1,16 @@
-//go:build wireinject
-// +build wireinject
-
 package models
 
 import (
-	"github.com/google/wire"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
+var DB *gorm.DB
+
 func InitDBConnection() (*gorm.DB, error) {
-	wire.Build(
-		newDBConnection,
-	)
-	return nil, nil
+	db, err := newDBConnection()
+	DB = db
+	return db, err
 }
 func newDBConnection() (*gorm.DB, error) {
 	var database *gorm.DB

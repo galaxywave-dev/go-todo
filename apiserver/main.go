@@ -18,7 +18,7 @@ func main() {
 		books.DELETE("/:id", controllers.DeleteBook) // new
 	}
 
-	models.ConnectDatabase() // new
+	models.InitDBConnection() // new
 
 	r.Run(":8088")
 }
