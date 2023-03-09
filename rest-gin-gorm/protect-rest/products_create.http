@@ -1,0 +1,17 @@
+POST http://localhost:8088/products HTTP/1.1
+content-type: application/json
+
+{
+    "id": 2,
+    "code": "0002",
+    "price": 2500
+}
+
+POST http://localhost:8088/products HTTP/1.1
+content-type: application/json
+
+{
+    "id": 2,
+    "code": "0002",
+    "price": 5500
+}
