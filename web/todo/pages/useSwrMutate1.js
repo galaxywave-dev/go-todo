@@ -13,7 +13,7 @@ export default function Home() {
   const { data, error, mutate } = useSWR("/todos/", getTodos);
   if (error) return "An error has occurred.";
 
-  const { trigger } = useSWRMutation("/todos/", addTodo, {
+  const { trigger, addedData } = useSWRMutation("/todos/", addTodo, {
     populateCache: (newTodo, data) => {
       return [...data, newTodo];
     },

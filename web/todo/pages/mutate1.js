@@ -7,12 +7,19 @@ import Link from "next/link";
 import { getTodos, addTodo, deleteTodo } from "./api";
 
 export default function Home() {
+  {console.log("Rendering...")}
   const url = "http://localhost:8088/todos/";
 
   const [text, setText] = useState("");
-  const { data, error, mutate } = useSWR("api/todos", getTodos);
+  const { data, error, isLoading, mutate } = useSWR("api/todos", getTodos,{revalidateOnFocus:false});
   if (error) return "An error has occurred.";
-
+  if (isLoading) {
+    if (data) {
+      console.log("isloading " , data.length)
+    }
+    return "Loading..." + (data ? data.length : null)
+  };
+  
   return (
     <div>
       <Toaster toastOptions={{ position: "bottom-center" }} />
@@ -23,6 +30,7 @@ export default function Home() {
           onChange={(e) => setText(e.target.value)}
           autoFocus
         />
+        
         <button
           type="submit"
           style={{ marginLeft: 10 }}
@@ -45,6 +53,12 @@ export default function Home() {
         >
           Add
         </button>
+        <button
+          type="submit"
+          style={{ marginLeft: 10 }}
+          onClick={() => {
+            setText("");
+          }}>Clear</button>
         <Link href="/" type="submit" style={{ marginLeft: 10 }}>
           Home
         </Link>

@@ -13,7 +13,8 @@ export default function Home() {
   const { data, error, mutate } = useSWR("/todos/", getTodos);
   if (error) return "An error has occurred.";
 
-  const { trigger } = useSWRMutation("/todos/", addTodo);
+  //const { trigger, addedData } = useSWRMutation("/todos/", addTodo);
+  const { trigger, addedData } = useSWRMutation("/todos/", addTodo);
   return (
     <div>
       <Toaster toastOptions={{ position: "bottom-center" }} />
@@ -35,6 +36,9 @@ export default function Home() {
             try {
               await trigger(newTodo, {
                 optimisticData: (data) => ([ ...data, newTodo ]),
+                populateCache: (newTodo, data) => {
+                  return [...data, newTodo];
+                },
                 revalidate: false,
               });
               toast.success("Successfully added the new item.");

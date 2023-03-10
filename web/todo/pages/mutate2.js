@@ -4,13 +4,13 @@ import useSWR from "swr";
 import { MdDelete } from "react-icons/md";
 import Link from "next/link";
 
-import { getTodos } from "./api";
+import { getTodos, addTodo2 } from "./api";
 
 export default function Home() {
   const url = "http://localhost:8088/todos/";
 
   const [text, setText] = useState("");
-  const { data, error, mutate } = useSWR("api/todos", getTodos);
+  const { data, error, mutate } = useSWR("api/todos", getTodos, {revalidateOnFocus:false});
   if (error) return "An error has occurred.";
 
   return (
@@ -32,15 +32,23 @@ export default function Home() {
               title: text,
             };
             try {
-              await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(newTodo),
-              }).then((res) => res.json());
-              console.log("adasdasd", data);
-              mutate(data => [...data, newTodo]);
+              await mutate(addTodo2("/todos/", newTodo), {
+                optimisticData : data => [...data, newTodo],
+                populateCache: (addedData, data) => ([...data, addedData]),
+                revalidate: false
+              });
+
+              //mutate(data => [...data, newTodo], {revalidate: false});
+              // var result = await fetch(url, {
+              //   method: "POST",
+              //   body: JSON.stringify(newTodo),
+              // }).then((res) => res.json());
+              //mutate(data => [...(data.filter(x => x.id != newTodo.id)), result.data], {revalidate: false});
               toast.success("Successfully added the new item.");
             } catch (e) {
+              //mutate(data => [...(data.filter(x => x.id != newTodo.id))], {revalidate: false})
               toast.error("Failed to add the new item." + e);
+
             }
           }}
         >
@@ -61,9 +69,15 @@ export default function Home() {
                     type="submit"
                     onClick={async () => {
                       try {
-                        await fetch(`${url}${todo.id}`, { method: 'DELETE' });
-                        mutate(data.filter(x => x.id != todo.id));
-                        toast.success("Successfully remove the item.");
+                        var result = await fetch(`${url}${todo.id}`, { method: 'DELETE' });
+                        console.log("result", result)
+                        if(result.status == 200) {
+                          mutate(data => data.filter(x => x.id != todo.id), {revalidate: false});
+                          toast.success("Successfully remove the item.");
+                        }
+                        else{
+                          toast.error("Failed to remove the item.");
+                        }
                       } catch (e) {
                         toast.error("Failed to remove the item.");
                       }
