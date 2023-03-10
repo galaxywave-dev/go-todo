@@ -40,6 +40,11 @@ export default function Home() {
             useSwrMutate with optimisticData (DELETE)
           </Link>
         </li>
+        <li>
+          <Link href="/ssr1">
+            useSwrConfig with SSR
+          </Link>
+        </li>
       </ul>
     </div>
   );
