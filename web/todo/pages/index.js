@@ -1,78 +1,45 @@
 import React, { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
 import useSWR from "swr";
-import { MdDelete } from "react-icons/md";
+import Link from "next/link";
 
 import { getTodos, addTodo, deleteTodo } from "./api";
 
 export default function Home() {
   const [text, setText] = useState("");
-  const { data, mutate } = useSWR("/api/todos", getTodos);
+  //const fetcher = (url) => fetch(url).then((res) => res.json());
+  const { data, error, mutate } = useSWR("api/todos", getTodos);
+  if (error) return "An error has occurred.";
 
   return (
     <div>
-      <Toaster toastOptions={{ position: "bottom-center" }} />
-      <h1>Next.js TODO APP</h1>
-      <form onSubmit={(ev) => ev.preventDefault()}>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          autoFocus
-        />
-        <button
-          type="submit"
-          style={{ marginLeft: 10 }}
-          onClick={async () => {
-            setText("");
-            const newTodo = {
-              id: Date.now(),
-              text,
-            };
-            try {
-              await mutate(addTodo(newTodo), {
-                optimisticData: [...data, newTodo],
-                rollbackOnError: true,
-                populateCache: true,
-                revalidate: false,
-              });
-              toast.success("Successfully added the new item.");
-            } catch (e) {
-              toast.error("Failed to add the new item.");
-            }
-          }}
-        >
-          Add
-        </button>
-      </form>
+      <h1>TODO APP</h1>
       <ul>
-        {data
-          ? data.map((todo,index) => {
-              return (
-                <li key={index}>
-                  {todo.text}
-                  <button
-                    style={{ marginLeft: 10, marginTop: 10 }}
-                    type="submit"
-                    onClick={async () => {
-                      try {
-                        await mutate(deleteTodo(todo), {
-                          optimisticData: [...data, todo],
-                          rollbackOnError: true,
-                          populateCache: true,
-                          revalidate: false,
-                        });
-                        toast.success("Successfully remove the item.");
-                      } catch (e) {
-                        toast.error("Failed to remove the item.");
-                      }
-                    }}
-                  >
-                    <MdDelete size={10} color="red" />
-                  </button>
-                </li>
-              );
-            })
-          : null}
+        <li>
+          <Link href="/mutate1">Mutate with No Parameters</Link>
+        </li>
+        <li>
+          <Link href="/mutate2">Mutate Custom cache</Link>
+        </li>
+        <li>
+          <Link href="/useSwrMutate1">
+            useSwrMutate with populate cache (ADD)
+          </Link>
+        </li>
+        <li>
+          <Link href="/useSwrMutate2">
+            useSwrMutate with optimisticData (ADD)
+          </Link>
+        </li>
+        <li>
+          <Link href="/useSwrMutateDel1">
+            useSwrMutate with populate cache (DELETE)
+          </Link>
+        </li>
+        <li>
+          <Link href="/useSwrMutateDel2">
+            useSwrMutate with optimisticData (DELETE)
+          </Link>
+        </li>
       </ul>
     </div>
   );

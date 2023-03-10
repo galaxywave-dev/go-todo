@@ -20,7 +20,7 @@ func newDBConnection() (*gorm.DB, error) {
 		panic("Failed to connect to database!")
 	}
 
-	err = database.AutoMigrate(&Book{})
+	err = database.AutoMigrate(&Book{}, &Todo{})
 	if err != nil {
 		panic("Failed to migrate to database!")
 	}

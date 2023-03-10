@@ -18,6 +18,26 @@ func main() {
 		books.DELETE("/:id", controllers.DeleteBook) // new
 	}
 
+	todos := r.Group("/todos")
+	{
+		todos.GET("/", controllers.FindTodos)
+		todos.POST("/", controllers.CreateTodo)
+		todos.GET("/:id", controllers.FindTodo)
+		todos.PATCH("/:id", controllers.UpdateTodo)
+		todos.DELETE("/:id", controllers.DeleteTodo) // new
+		// Define OPTIONS route to handle preflight request
+		todos.OPTIONS("/:id", func(c *gin.Context) {
+			// Set CORS headers
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.Header("Access-Control-Allow-Methods", "DELETE")
+			c.Header("Access-Control-Allow-Headers", "Content-Type")
+
+			// Respond with status 204 (no content)
+			c.Status(204)
+		})
+
+	}
+
 	models.InitDBConnection() // new
 
 	r.Run(":8088")
