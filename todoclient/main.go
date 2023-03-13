@@ -47,7 +47,7 @@ func main() {
 	c := pb.NewTodoManagerClient(conn)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Second)
 	defer cancel()
 	//r, err := c.GetTodo(ctx, &pb.TodoRequest{Id: 1})
 	stream, err := c.WatchNewTodo(ctx, &emptypb.Empty{})

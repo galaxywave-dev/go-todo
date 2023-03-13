@@ -8,6 +8,7 @@ import (
 	"galaxywave.com/go-todo/apiserver/controllers"
 	"galaxywave.com/go-todo/apiserver/grpcsvc"
 	"galaxywave.com/go-todo/apiserver/models"
+	"galaxywave.com/go-todo/apiserver/services"
 	pb "galaxywave.com/go-todo/todoapi"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
@@ -15,6 +16,7 @@ import (
 
 func main() {
 	models.InitDBConnection() // new
+	services.Init()
 	go hostRestApi(8088)
 	hostGrpcApi(8089)
 

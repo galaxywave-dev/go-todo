@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"galaxywave.com/go-todo/apiserver/models"
+	"galaxywave.com/go-todo/apiserver/services"
 	pb "galaxywave.com/go-todo/todoapi"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,9 +32,9 @@ func (s *TodoManager) GetTodo(ctx context.Context, in *pb.TodoRequest) (*pb.Todo
 }
 
 func (s *TodoManager) WatchNewTodo(_ *emptypb.Empty, src pb.TodoManager_WatchNewTodoServer) error {
-	var todos []models.Todo
-	models.DB.Find(&todos)
-	for _, todo := range todos {
+	for {
+		todo := <-services.TODOChan
+		fmt.Println(todo)
 		src.Send(&pb.TodoReply{Id: todo.ID, Title: todo.Title})
 	}
 	return nil
