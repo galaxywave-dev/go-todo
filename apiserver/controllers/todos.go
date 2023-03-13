@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"galaxywave.com/go-todo/models"
+	"galaxywave.com/go-todo/apiserver/models"
+	"galaxywave.com/go-todo/apiserver/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,13 +47,11 @@ func CreateTodo(c *gin.Context) {
 	}
 
 	// Create todo
-	count := models.DB.Where(&input).Find(&models.Todo{}).RowsAffected
-	if count > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record already exists!"})
+	todo := models.Todo{Title: input.Title}
+	if err := services.CreateTodo(&todo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	todo := models.Todo{Title: input.Title}
-	models.DB.Create(&todo)
 
 	c.JSON(http.StatusOK, gin.H{"data": todo})
 }

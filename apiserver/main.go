@@ -1,12 +1,25 @@
 package main
 
 import (
-	"galaxywave.com/go-todo/controllers"
-	"galaxywave.com/go-todo/models"
+	"fmt"
+	"log"
+	"net"
+
+	"galaxywave.com/go-todo/apiserver/controllers"
+	"galaxywave.com/go-todo/apiserver/grpcsvc"
+	"galaxywave.com/go-todo/apiserver/models"
+	pb "galaxywave.com/go-todo/todoapi"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
 func main() {
+	models.InitDBConnection() // new
+	go hostRestApi(8088)
+	hostGrpcApi(8089)
+
+}
+func hostRestApi(port int) {
 	r := gin.Default()
 
 	books := r.Group("/books")
@@ -37,8 +50,18 @@ func main() {
 		})
 
 	}
+	r.Run(fmt.Sprintf(":%d", port))
+}
 
-	models.InitDBConnection() // new
-
-	r.Run(":8088")
+func hostGrpcApi(port int) {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	pb.RegisterTodoManagerServer(s, &grpcsvc.TodoManager{})
+	log.Printf("server listening at %v", lis.Addr())
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

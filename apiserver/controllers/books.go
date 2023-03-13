@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"galaxywave.com/go-todo/models"
+	"galaxywave.com/go-todo/apiserver/models"
 	"github.com/gin-gonic/gin"
 )
 
