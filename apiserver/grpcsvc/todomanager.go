@@ -32,8 +32,10 @@ func (s *TodoManager) GetTodo(ctx context.Context, in *pb.TodoRequest) (*pb.Todo
 }
 
 func (s *TodoManager) WatchNewTodo(_ *emptypb.Empty, src pb.TodoManager_WatchNewTodoServer) error {
+	l := services.Cast.Listen()
 	for {
-		todo := <-services.TODOChan
+		data := <-l.Ch
+		todo := data.(*models.Todo)
 		fmt.Println(todo)
 		src.Send(&pb.TodoReply{Id: todo.ID, Title: todo.Title})
 	}
