@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 
 	"galaxywave.com/go-todo/apiserver/controllers"
 	"galaxywave.com/go-todo/apiserver/grpcsvc"
+	"galaxywave.com/go-todo/apiserver/initializers"
+	"galaxywave.com/go-todo/apiserver/middleware"
 	"galaxywave.com/go-todo/apiserver/models"
 	"galaxywave.com/go-todo/apiserver/services"
 	pb "galaxywave.com/go-todo/todoapi"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
@@ -22,7 +26,12 @@ func main() {
 
 }
 func hostRestApi(port int) {
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	corsConfig.AllowCredentials = true
+
 	r := gin.Default()
+	r.Use(cors.New(corsConfig))
 
 	books := r.Group("/books")
 	{
@@ -52,6 +61,26 @@ func hostRestApi(port int) {
 		})
 
 	}
+	// auth
+	initializers.ConnectDB()
+	router := r.Group("/api")
+	router.GET("/healthchecker", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Implement Google OAuth2 in Golang"})
+	})
+
+	auth_router := router.Group("/auth")
+	auth_router.POST("/register", controllers.SignUpUser)
+	auth_router.POST("/login", controllers.SignInUser)
+	auth_router.GET("/logout", middleware.DeserializeUser(), controllers.LogoutUser)
+
+	router.GET("/sessions/oauth/google", controllers.GoogleOAuth)
+	router.GET("/users/me", middleware.DeserializeUser(), controllers.GetMe)
+
+	router.StaticFS("/images", http.Dir("public"))
+	r.NoRoute(func(ctx *gin.Context) {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Route Not Found"})
+	})
+
 	r.Run(fmt.Sprintf(":%d", port))
 }
 
