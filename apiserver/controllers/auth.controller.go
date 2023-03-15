@@ -32,7 +32,7 @@ func SignUpUser(ctx *gin.Context) {
 		UpdatedAt: now,
 	}
 
-	result := initializers.DB.Create(&newUser)
+	result := models.DB.Create(&newUser)
 
 	if result.Error != nil && strings.Contains(result.Error.Error(), "UNIQUE constraint failed: users.email") {
 		ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "User with that email already exists"})
@@ -55,7 +55,7 @@ func SignInUser(ctx *gin.Context) {
 	}
 
 	var user models.User
-	result := initializers.DB.First(&user, "email = ?", strings.ToLower(payload.Email))
+	result := models.DB.First(&user, "email = ?", strings.ToLower(payload.Email))
 	if result.Error != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid email or Password"})
 		return
@@ -121,12 +121,12 @@ func GoogleOAuth(ctx *gin.Context) {
 		UpdatedAt: now,
 	}
 
-	if initializers.DB.Model(&user_data).Where("email = ?", email).Updates(&user_data).RowsAffected == 0 {
-		initializers.DB.Create(&user_data)
+	if models.DB.Model(&user_data).Where("email = ?", email).Updates(&user_data).RowsAffected == 0 {
+		models.DB.Create(&user_data)
 	}
 
 	var user models.User
-	initializers.DB.First(&user, "email = ?", email)
+	models.DB.First(&user, "email = ?", email)
 
 	config, _ := initializers.LoadConfig(".")
 

@@ -8,7 +8,6 @@ import (
 
 	"galaxywave.com/go-todo/apiserver/controllers"
 	"galaxywave.com/go-todo/apiserver/grpcsvc"
-	"galaxywave.com/go-todo/apiserver/initializers"
 	"galaxywave.com/go-todo/apiserver/middleware"
 	"galaxywave.com/go-todo/apiserver/models"
 	"galaxywave.com/go-todo/apiserver/services"
@@ -62,7 +61,6 @@ func hostRestApi(port int) {
 
 	}
 	// auth
-	initializers.ConnectDB()
 	router := r.Group("/api")
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Implement Google OAuth2 in Golang"})
